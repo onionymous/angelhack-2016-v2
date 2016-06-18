@@ -49,6 +49,17 @@
         
         <!-- Code to handle taking the snapshot and displaying it locally -->
         <script language="JavaScript">
+        var score;
+        var numberFrames;
+        function initScore () {
+            score = 0;
+            numberFrames = 0;
+        }
+     
+        var data;
+        var weight = [0.3, -0.3, -0.5, -0.4, 0.0];    
+
+
             function take_snapshot() {
                 console.log("Snapshot function called");
                 // take snapshot and get image data
@@ -70,14 +81,14 @@
                       data: JSON.stringify({data: data_uri}),
                       success: function (r) {
                         //console.log(r);
-                        angular.element(document.getElementById("MainWrap")).scope().plot_points(r);
+                        angular.element(document.getElementById("MainWrap")).scope().plot_points(r); console.log('test ' + r)
                       },
                       dataType: "json"
                     });
                     numberFrames += 1;
                     var i;
                     for (i = 0; i < 6; i++) {
-                        score += data[i] * weight[i];
+                        score += r[i] * weight[i];
                     }
                     // console.log(xhr.responseText);
 
