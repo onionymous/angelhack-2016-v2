@@ -74,19 +74,26 @@
                       },
                       dataType: "json"
                     });
-
+                    numberFrames += 1;
+                    var i;
+                    for (i = 0; i < 6; i++) {
+                        score += data[i] * weight[i];
+                    }
                     // console.log(xhr.responseText);
+
 
                 } );
             }
 
             function record() {
                 if (!timer_flag) {
+                    initScore();
                     startCount(function () {take_snapshot();});
                     document.getElementById("record_toggle").value="Stop Recording";
                 }
                 else {
                     stopCount();
+                    console.log(score/numberFrames);
                     document.getElementById("record_toggle").value="Start Recording";
                 }
             }

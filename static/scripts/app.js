@@ -1,3 +1,15 @@
+var score;
+var numberFrames;
+
+function initScore () {
+    score = 0;
+    numberFrames = 0;
+}
+
+var data;
+var weight = [0.3, -0.3, -0.5, -0.4, 0.0];
+
+
 var teleNex = angular.module('teleNex', []);
 teleNex.controller("MainController", function($scope){
     // $scope.randomEntry = function(){
@@ -20,7 +32,7 @@ teleNex.controller("MainController", function($scope){
         contempt.y.push(parseFloat(jd["contempt"]));
         // surprise.y.push(parseFloat(jd["surprise"]));
         // disgust.y.push(parseFloat(jd["disgust"]));
-        var data = [happiness, sadness, fear, anger, neutral, contempt];
+        data = [happiness, sadness, fear, anger, neutral, contempt];
         Plotly.newPlot('myDiv', data, layout, {scrollZoom: true});
     }
 
@@ -84,6 +96,6 @@ teleNex.controller("MainController", function($scope){
         showLink: false
     };
     
-    var data = [happiness, sadness, fear, anger, neutral, contempt];
+    data = [happiness, sadness, fear, anger, neutral, contempt];
     Plotly.newPlot('myDiv', data, layout, {scrollZoom: true});
 });
