@@ -17,7 +17,7 @@
     <div id="camera"></div>
     
     <!-- First, include the Webcam.js JavaScript Library -->
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="scripts/jquery-2.2.0.min.js"></script>
     <script type="text/javascript" src="scripts/webcam.js"></script>
     
     <!-- Configure a few settings and attach camera -->
@@ -62,11 +62,14 @@
                   contentType: "application/json; charset=utf-8",
                   url: "/get_frame_sentiment",
                   data: JSON.stringify({data: data_uri}),
-                  success: function (data) {
-                    console.log(data.score);
+                  success: function (r) {
+                    console.log(r);
                   },
                   dataType: "json"
                 });
+
+                // console.log(xhr.responseText);
+
             } );
         }
     </script>
