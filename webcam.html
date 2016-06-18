@@ -1,0 +1,75 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Test webcam capture</title>
+    <style type="text/css">
+        body { font-family: Helvetica, sans-serif; }
+        h2, h3 { margin-top:0; }
+        form { margin-top: 15px; }
+        form > input { margin-right: 15px; }
+        #results { float:right; margin:20px; padding:20px; border:1px solid; background:#ccc; }
+    </style>
+</head>
+<body>
+    <div id="results">captured image</div>
+    <div id="camera"></div>
+    
+    <!-- First, include the Webcam.js JavaScript Library -->
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="scripts/webcam.js"></script>
+    
+    <!-- Configure a few settings and attach camera -->
+    <script language="JavaScript">
+        Webcam.set({
+            width: 320,
+            height: 240,
+            dest_width: 320,
+            dest_height: 240,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        Webcam.attach( '#camera' );
+    </script>
+    
+    <!-- A button for taking snaps -->
+    <form>
+        <input type=button value="Take Snapshot" onClick="take_snapshot()">
+    </form>
+    
+    <!-- Code to handle taking the snapshot and displaying it locally -->
+    <script language="JavaScript">
+        function take_snapshot() {
+            // take snapshot and get image data
+            Webcam.snap( function(data_uri) {
+                // display results in page
+                document.getElementById('results').innerHTML = 
+                    '<h2>Result image:</h2>' + 
+                    '<img src="'+data_uri+'"/>';
+
+                // var xhr = new XMLHttpRequest();
+                // xhr.open("POST", "../get_frame_sentiment");
+                // //xhr.setRequestHeader('Content-Type', 'application/json');
+                // //xhr.setRequestHeader("Ocp-Apim-Subscription-Key", "59e8effcb05b4ab5b37dc2e0f3290315");
+                // xhr.send(data_uri);
+                // //if (xhr.readyState == 4)
+                //  // if (xhr.status == 200)
+                //     //var json_response = JSON.parse(xhr.responseText);
+
+                $.ajax({
+                  type: "POST",
+                  contentType: "application/json; charset=utf-8",
+                  url: "/get_frame_sentiment",
+                  data: JSON.stringify({data: data_uri}),
+                  success: function (data) {
+                    console.log(data.score);
+                  },
+                  dataType: "json"
+                });
+            } );
+        }
+    </script>
+    
+</body>
+</html>
