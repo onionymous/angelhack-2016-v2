@@ -8,36 +8,24 @@
     <script   src="scripts/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
     <script src="scripts/bootstrap.min.js"></script>
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="../public/css/app.css">
+    <link rel="stylesheet" href="css/app.css">
     <!-- AngularJS -->
     <script src="scripts/angular.min.js"></script>
     <!-- Plotly.js -->
     <script src="scripts/plotly-latest.min.js"></script>
     <!-- Javascript Files -->
-    <script src="scripts/plotly.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/auto-emotion.js"></script>
+    <!-- Webcam.js JavaScript Library -->
+    <script type="text/javascript" src="scripts/webcam.js"></script>
 </head>
 <body ng-app="teleNex" ng-controller="MainController as MainCtrl">
-    <div class="container">
+    <div class="container" id="MainWrap">
         <div class="row">
             <div class="col-xs-12">
-                <h1 class="text-center">teleNex</h1>
-                <div id="myDiv" style=""></div>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <br><br>
-            <button class="btn btn-default center-block text-center" ng-click="randomEntry()">Random Entry</button>
-        </div>
-    </div>
-
-    <div class = "webcam">
-        <div id="results">captured image</div>
-        <div id="camera"></div>
-        
-        <!-- First, include the Webcam.js JavaScript Library -->
-        <script src="scripts/jquery-2.2.0.min.js"></script>
-        <script type="text/javascript" src="scripts/webcam.js"></script>
-        
+                    <div class = "webcam">
+        <div id="camera" class="center-block"></div>
+             
         <!-- Configure a few settings and attach camera -->
         <script language="JavaScript">
             Webcam.set({
@@ -50,21 +38,21 @@
             });
             Webcam.attach( '#camera' );
         </script>
-        
         <!-- A button for taking snaps -->
         <form>
-            <input type=button value="Take Snapshot" onClick="take_snapshot()">
+            
+        </form>
+
+        <form>
+            <input type="button" class="btn btn-default center-block text-center" id="record_toggle" onClick="record()" value="Start Recording">
         </form>
         
         <!-- Code to handle taking the snapshot and displaying it locally -->
         <script language="JavaScript">
             function take_snapshot() {
+                console.log("Snapshot function called");
                 // take snapshot and get image data
                 Webcam.snap( function(data_uri) {
-                    // display results in page
-                    document.getElementById('results').innerHTML = 
-                        '<h2>Result image:</h2>' + 
-                        '<img src="'+data_uri+'"/>';
 
                     // var xhr = new XMLHttpRequest();
                     // xhr.open("POST", "../get_frame_sentiment");
@@ -81,7 +69,8 @@
                       url: "/get_frame_sentiment",
                       data: JSON.stringify({data: data_uri}),
                       success: function (r) {
-                        console.log(r);
+                        //console.log(r);
+                        angular.element(document.getElementById("MainWrap")).scope().plot_points(r);
                       },
                       dataType: "json"
                     });
@@ -90,7 +79,28 @@
 
                 } );
             }
+
+            function record() {
+                if (!timer_flag) {
+                    startCount(function () {take_snapshot();});
+                    document.getElementById("record_toggle").value="Stop Recording";
+                }
+                else {
+                    stopCount();
+                    document.getElementById("record_toggle").value="Start Recording";
+                }
+            }
         </script>
+        </div>
+
+                <h1 class="text-center">teleNex</h1>
+                <div id="myDiv" style=""></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <br><br>
+            <!--<button class="btn btn-default center-block text-center" ng-click="randomEntry()">Random Entry</button>-->
+        </div>
     </div>
 
 </html>
