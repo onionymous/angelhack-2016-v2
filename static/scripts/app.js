@@ -1,15 +1,3 @@
-var score;
-var numberFrames;
-
-function initScore () {
-    score = 0;
-    numberFrames = 0;
-}
-
-var data;
-var weight = [0.3, -0.3, -0.5, -0.4, 0.0];
-
-
 var teleNex = angular.module('teleNex', []);
 teleNex.controller("MainController", function($scope){
     // $scope.randomEntry = function(){

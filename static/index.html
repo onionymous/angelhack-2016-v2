@@ -49,17 +49,8 @@
         
         <!-- Code to handle taking the snapshot and displaying it locally -->
         <script language="JavaScript">
-        var score;
-        var numberFrames;
-        function initScore () {
-            score = 0;
-            numberFrames = 0;
-        }
-     
-        var data;
-        var weight = [0.3, -0.3, -0.5, -0.4, 0.0];    
-
-
+            var score = 0;
+            var numframes = 0;
             function take_snapshot() {
                 console.log("Snapshot function called");
                 // take snapshot and get image data
@@ -81,31 +72,38 @@
                       data: JSON.stringify({data: data_uri}),
                       success: function (r) {
                         //console.log(r);
-                        angular.element(document.getElementById("MainWrap")).scope().plot_points(r); console.log('test ' + r)
+                        angular.element(document.getElementById("MainWrap")).scope().plot_points(r);
+                        weight(r);
                       },
                       dataType: "json"
                     });
-                    numberFrames += 1;
-                    var i;
-                    for (i = 0; i < 6; i++) {
-                        score += r[i] * weight[i];
-                    }
-                    // console.log(xhr.responseText);
 
+                    // console.log(xhr.responseText);
 
                 } );
             }
 
+            function weight(jd) {
+                numframes += 1;
+                score = score + 0.3*parseFloat(jd["happiness"])
+                      + (-0.2) * parseFloat(jd["sadness"])
+                      + (-0.5) * parseFloat(jd["fear"])
+                      + (-0.4) * parseFloat(jd["anger"])
+                      + (0.0) * parseFloat(jd["neutral"])
+                      + (-0.1) * parseFloat(jd["contempt"]);
+            }
+
             function record() {
                 if (!timer_flag) {
-                    initScore();
                     startCount(function () {take_snapshot();});
                     document.getElementById("record_toggle").value="Stop Recording";
                 }
                 else {
                     stopCount();
-                    console.log(score/numberFrames);
                     document.getElementById("record_toggle").value="Start Recording";
+                    // Aggregate score
+                    // Please make this pretty
+                    alert('Overall score: ' + score/numframes);
                 }
             }
         </script>
