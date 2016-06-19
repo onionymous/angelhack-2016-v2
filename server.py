@@ -1,6 +1,7 @@
 from flask import Flask, Response, render_template, request, send_from_directory
 import base64, json
 from api.emotion import EmotionClient
+from havenondemand.hodclient import *
 from time import time
 
 app = Flask(__name__)
@@ -89,6 +90,41 @@ def get_frame_sentiment():
 
     return json.dumps(results)
     # return jsonify(score=str(score))
+
+@app.route("/get_audio", methods=['POST'])
+def get_audio():
+    mp3string = request.json['data']
+    # print(mp3string)
+
+    mp3data = base64.b64decode(mp3string)
+
+    filename = "tmp/tmp_audio.mp3"
+    with open(filename, 'wb') as f:
+        f.write(mp3data)
+
+    URL_SPEECH = "https://api.havenondemand.com/1/api/async/recognizespeech/v1"
+    API_KEY = "0513bd79-7197-48ae-b324-b7d78b68a3da"
+
+    client = HODClient(API_KEY, "v1")
+    
+    params = {'file': filename}
+    response_async = client.post_request(params, HODApps.RECOGNIZE_SPEECH, async=True)
+    jobID = response_async['jobID']
+    print(response_async)
+    print('https://api.havenondemand.com/1/job/result/' + jobID)
+    response = requests.get( 'https://api.havenondemand.com/1/job/result/' + jobID, params={'apikey' : API_KEY})
+    text = response.json()['actions'][0]['result']['document'][0]['content']
+
+    URL_SENTIMENT = "https://api.havenondemand.com/1/api/sync/analyzesentiment/v1"
+
+    params = {'text': text}
+    response = client.get_request(params, HODApps.ANALYZE_SENTIMENT, async=False)
+    sentiment = response['aggregate']['sentiment']
+    score = response['aggregate']['score']
+
+    results = {'sentiment': sentiment, 'score': score}
+
+    return json.dumps(results)
 
 if __name__ == "__main__":
     app.run()

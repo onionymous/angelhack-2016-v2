@@ -18,8 +18,9 @@
     <script src="scripts/auto-emotion.js"></script>
     <!-- Webcam.js JavaScript Library -->
     <script type="text/javascript" src="scripts/webcam.js"></script>
-    <script type="text/javascript" src="scripts/mp3recorder.js"></script>
-
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/mp3recorder.js"></script>
+    
     <script type="text/javascript">
     var audio_context;
     
@@ -65,24 +66,12 @@
         recorderObject.stop();
         
         recorderObject.exportMP3(function(base64_mp3_data) {
-          // var url = 'data:audio/mp3;base64,' + base64_mp3_data;
-          // var au  = document.createElement('audio');
+          var url = 'data:audio/mp3;base64,' + base64_mp3_data;
+          var au  = document.createElement('audio');
 
-          // au.controls = true;
-          // au.src = url;
-          // $recorder.append(au);
-
-            $.ajax({
-              type: "POST",
-              contentType: "application/json; charset=utf-8",
-              url: "/get_audio",
-              data: JSON.stringify({data: base64_mp3_data}),
-              success: function (r) {
-                console.log(r);
-                alert('Sentiment: ' + r['sentiment'] + '\n' + 'Score: ' + r['score']);
-              },
-              dataType: "json"
-            });
+          au.controls = true;
+          au.src = url;
+          $recorder.append(au);
           
           recorderObject.logStatus('');
         });
@@ -91,13 +80,13 @@
       
     });
     </script>
-  
+
 </head>
 <body ng-app="teleNex" ng-controller="MainController as MainCtrl">
     <div class="container" id="MainWrap">
         <div class="row">
             <div class="col-xs-12">
-                    <div class = "webcam" id="webcamHide">
+                    <div class = "webcam">
         <div id="camera" class="center-block"></div>
              
         <!-- Configure a few settings and attach camera -->
@@ -112,26 +101,18 @@
             });
             Webcam.attach( '#camera' );
         </script>
+        <!-- A button for taking snaps -->
+        <form>
+            
+        </form>
 
         <form>
             <input type="button" class="btn btn-default center-block text-center" id="record_toggle" onClick="record()" value="Start Recording">
         </form>
-
-
-            <div class="recorder">
-              Record audio
-              <input type="button" class="start"  value="Record" />
-              <input type="button" class="stop" value="Stop" />
-              <pre class="status"></pre>
-            </div>
-            
-            <pre id="log"></pre>
-
         
         <!-- Code to handle taking the snapshot and displaying it locally -->
         <script language="JavaScript">
             var score = 0;
-            var sscore = 0;
             var numframes = 0;
             function take_snapshot() {
                 console.log("Snapshot function called");
@@ -167,11 +148,12 @@
 
             function weight(jd) {
                 numframes += 1;
-                score = score + 2.5*parseFloat(jd["happiness"])
-                      - parseFloat(jd["sadness"])
-                      - parseFloat(jd["fear"])
-                      - parseFloat(jd["anger"])
-                      - parseFloat(jd["contempt"]);
+                score = score + 0.3*parseFloat(jd["happiness"])
+                      + (-0.2) * parseFloat(jd["sadness"])
+                      + (-0.5) * parseFloat(jd["fear"])
+                      + (-0.4) * parseFloat(jd["anger"])
+                      + (0.0) * parseFloat(jd["neutral"])
+                      + (-0.1) * parseFloat(jd["contempt"]);
             }
 
             function record() {
@@ -181,7 +163,7 @@
                 }
                 else {
                     stopCount();
-                    document.getElementById("webcamHide").style.display='none';
+                    document.getElementById("record_toggle").value="Start Recording";
                     // Aggregate score
                     // Please make this pretty
                     alert('Overall score: ' + score/numframes);
@@ -192,6 +174,44 @@
 
                 <h1 class="text-center">teleNex</h1>
                 <div id="myDiv" style=""></div>
+
+                <div class=page>
+                  <h1>Test log</h1>
+                  <div class=metanav>
+                  {% if not session.logged_in %}
+                    <a href="{{ url_for('login') }}">log in</a>
+                  {% else %}
+                    <a href="{{ url_for('logout') }}">log out</a>
+                  {% endif %}
+                  </div>
+                  {% for message in get_flashed_messages() %}
+                    <div class=flash>{{ message }}</div>
+                  {% endfor %}
+                  {% block body %}{% endblock %}
+                </div>
+
+                {% block body %}
+                  {% if session.logged_in %}
+                    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+                      <dl>
+                        <dt>Title:
+                        <dd><input type=text size=30 name=title>
+                        <dt>Text:
+                        <dd><textarea name=text rows=5 cols=40></textarea>
+                        <dd><input type=submit value=Share>
+                      </dl>
+                    </form>
+                  {% endif %}
+                  <ul class=entries>
+                  {% for entry in entries %}
+                    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+                  {% else %}
+                    <li><em>No entries here so far</em>
+                  {% endfor %}
+                  </ul>
+                {% endblock %}
+
+
             </div>
         </div>
         <div class="col-md-12">
