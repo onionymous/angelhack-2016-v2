@@ -23,7 +23,7 @@
     <div class="container" id="MainWrap">
         <div class="row">
             <div class="col-xs-12">
-                    <div class = "webcam">
+                    <div class = "webcam" id="webcamHide">
         <div id="camera" class="center-block"></div>
              
         <!-- Configure a few settings and attach camera -->
@@ -100,7 +100,7 @@
                 }
                 else {
                     stopCount();
-                    document.getElementById("record_toggle").value="Start Recording";
+                    document.getElementById("webcamHide").style.display='none';
                     // Aggregate score
                     // Please make this pretty
                     alert('Overall score: ' + score/numframes);
