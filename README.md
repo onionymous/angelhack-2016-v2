@@ -1,4 +1,4 @@
-# angelhack-2016-v2
+# teleNex
 
 folder structure:
 - static files are in /static
